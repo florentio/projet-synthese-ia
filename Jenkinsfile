@@ -27,25 +27,13 @@ pipeline {
             }
         }
 
- /*        stage('Run Tests') {
-            steps {
-                sh 'pytest tests/'
-            }
-        } */
-
 /*         stage('Train and Register Model') {
-            when {
-                 changelog 'src/data_prep.py', 'src/train_model.py', 'params.yaml'
-            }
             steps {
                 sh "python3 src/train_model.py"
             }
         } */
 
         stage('Build Docker Images') {
-            when {
-                 changelog 'src/predict_api.py', 'src/streamlit_dashboard.py', 'utils.py'
-            }
             steps {
                 script {
                     sh "docker build -t ${APP_NAME}-api:${BUILD_NUMBER} -f Dockerfile.api ."
