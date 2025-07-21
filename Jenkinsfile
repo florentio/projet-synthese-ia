@@ -17,7 +17,7 @@ pipeline {
                 }
             }
         }
-        stage('DVC Pull ') {
+        stage('DVC Pull') {
              when {
                 expression {  params.Components == 'DVC' ||
                              params.Components == 'All'
