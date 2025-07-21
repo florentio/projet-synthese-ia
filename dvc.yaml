@@ -1,0 +1,11 @@
+# DVCfile
+stages:
+  prepare_data:
+    cmd: python src/data_prep.py --input data/raw/customer_data.csv --output data/processed/features.csv
+    deps:
+      - data/raw/customer_data.csv
+      - src/data_prep.py
+    outs:
+      - data/processed/features.csv
+    params:
+      - data_prep.preprocessing_params

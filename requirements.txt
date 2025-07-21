@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+pycaret==3.2.0 # Specify a version to avoid breaking changes
+mlflow==2.10.1 # Specify a version
+streamlit
+evidently[extra]
+prometheus_client
+pytest
