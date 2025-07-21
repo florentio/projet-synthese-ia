@@ -3,63 +3,99 @@ pipeline {
     agent any
 
     environment {
-        DVC_REMOTE_URL = '/var/local/dvc/' //'s3://your-s3-bucket/dvc-remote' // Or a local path for testing
-        MLFLOW_MODEL_NAME = 'ProjetAIModel'
         APP_NAME = "projet-ai"
+    }
+    parameters {
+        choice(name: 'Components', choices: ['API', 'Monitoring', 'DVC', 'Model', 'EvidentlyAI', 'MlFlow', 'All'], description: 'Pick component to deploy')
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout repo') {
             steps {
-                git branch: 'main', url: 'https://github.com/florentio/projet-ia.git'
+                script {
+                    git branch: 'main', url: 'https://github.com/florentio/projet-ia.git'
+                }
             }
         }
-        stage('DVC Pull') {
+        stage('DVC Pull ') {
+             when {
+                expression {  params.Components == 'DVC' ||
+                             params.Components == 'All'
+                             }
+            }
             steps {
                 script {
                     sh 'dvc pull' // Pull latest data and models
                 }
             }
         }
-        stage('Install Dependencies') {
+        stage('Model Training') {
+             when {
+                expression {  params.Components == 'Model' ||
+                             params.Components == 'All'
+                             }
+            }
             steps {
-                sh 'pip install -r requirements.txt'
+                script {
+                    sh '''
+                    echo 'Model Training'
+                    '''
+                }
             }
         }
-
-/*         stage('Train and Register Model') {
-            steps {
-                sh "python3 src/train_model.py"
+        stage('Deploy MlFlow') {
+            when {
+                expression {  params.Components == 'MlFlow' ||
+                             params.Components == 'All' }
             }
-        } */
-
-        stage('Build Docker Images') {
+            steps {
+                script {
+                    sh "docker-compose up -d  mlflow"
+                }
+            }
+        }
+        stage('Deploy API') {
+            when {
+                expression {
+                             params.Components == 'API' ||
+                             params.Components == 'All'
+                 }
+            }
             steps {
                 script {
                     sh "docker build -t ${APP_NAME}-api:${BUILD_NUMBER} -f Dockerfile.api ."
                     sh "docker build -t ${APP_NAME}-streamlit:${BUILD_NUMBER} -f Dockerfile.streamlit ."
+                    sh "docker-compose up -d --no-deps api streamlit"
                 }
             }
         }
-//         stage('Deploy to Production') {
-//             when {
-//                 expression { return currentBuild.result == 'SUCCESS' && input(id: 'prod_deploy', message: 'Proceed to Production Deployment?', ok: 'Deploy') }
-//             }
-//             steps {
-//                 script {
-//                     sh "mlflow.pyfunc.model.set_production_stage(model_name='ProjetAIModel', version=${env.MLFLOW_MODEL_VERSION}, stage='Production')"
-//                 }
-//                 sh """
-//                 docker-compose up -d --no-deps api streamlit
-//                 """
-//             }
-//         }
-//         stage('Run EvidentlyAI Monitoring (Staging)') {
-//             steps {
-//                 sh "python3 src/monitoring/evidently_metrics.py"
-//                 archiveArtifacts artifacts: 'src/monitoring/evidently_report.html'
-//             }
-//         }
+        stage('Deploy Monitoring') {
+            when {
+                expression {  params.Components == 'Monitoring' ||
+                             params.Components == 'All'
+                              }
+            }
+            steps {
+                script {
+                    sh "docker-compose up -d prometheus grafana"
+                }
+            }
+        }
+
+        stage('EvidentlyAI') {
+             when {
+                expression {  params.Components == 'EvidentlyAI' ||
+                             params.Components == 'All'
+                            }
+            }
+            steps {
+                script {
+                    sh '''
+                    echo 'EvidentlyAI'
+                    '''
+                }
+            }
+        }
     }
     post {
         always {
