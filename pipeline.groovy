@@ -50,7 +50,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker-compose up -d  mlflow"
+                    sh "docker-compose up -d mlflow"
                 }
             }
         }
