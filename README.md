@@ -1,5 +1,5 @@
 # Project Structure
-
+```
 projet-ia/
 ├── .dvc/                             # DVC internal files
 ├── data/
@@ -36,3 +36,4 @@ projet-ia/
 │   └── dashboards/
 │       └── churn_dashboard.json      # Grafana dashboard definition
 └── README.md
+```
