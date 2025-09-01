@@ -1,0 +1,26 @@
+# requirements-dev.txt
+#
+# Development and testing dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Code quality and formatting
+black                # Code formatter
+isort                # Import sorter
+flake8               # Linting
+mypy                 # Type checking
+bandit               # Security analysis
+
+# Testing frameworks
+pytest               # Testing framework
+pytest-cov           # Coverage reporting
+pytest-mock          # Mocking utilities
+pytest-asyncio       # Async testing support
+
+# Development utilities
+ipython              # Enhanced Python shell
+jupyter              # Jupyter notebooks
+notebook             # Jupyter notebook server
+
+# Documentation
+sphinx               # Documentation generator
+sphinx-rtd-theme     # Read the Docs theme
