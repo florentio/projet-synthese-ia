@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y git curl && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install DVC and ML packages
 RUN pip install dvc==3.61.0 pandas scikit-learn joblib mlflow
 
 # Create directories
