@@ -57,7 +57,7 @@ services:
       - MLFLOW_HOST=0.0.0.0
       - MLFLOW_PORT=5000   # Container internal port
     ports:
-      - "8080:5000"  # Host:8080 → Container:5000
+      - "8082:5000"  # Host:8080 → Container:5000
     volumes:
       - mlflow_artifacts:/app/mlflow-artifacts
       - ./model:/app/model
