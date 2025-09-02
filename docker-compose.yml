@@ -19,7 +19,6 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-local=trust --auth-host=scram-sha-256"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      #- ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro
     ports:
       - "5432:5432"
     networks:
@@ -215,27 +214,27 @@ services:
   # ==============================================
   # DVC DATA PIPELINE (runs DVC repro)
   # ==============================================
-  dvc-pipeline:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.dvc
-    container_name: churn_dvc_pipeline
-    environment:
-      - MLFLOW_TRACKING_URI=http://mlflow:5000  # Container internal access
-      - PYTHONPATH=/app
-    volumes:
-      - ./data:/app/data
-      - ./model:/app/model
-      - ./scripts:/app/scripts
-      - ./reports:/app/reports
-      - ./dvc.yaml:/app/dvc.yaml:ro
-      - ./params.yaml:/app/params.yaml:ro
-      - ./.dvc:/app/.dvc
-    depends_on:
-      - mlflow
-    networks:
-      - churn_network
-    command: dvc repro
+#  dvc-pipeline:
+#    build:
+#      context: .
+#      dockerfile: docker/Dockerfile.dvc
+#    container_name: churn_dvc_pipeline
+#    environment:
+#      - MLFLOW_TRACKING_URI=http://mlflow:5000  # Container internal access
+#      - PYTHONPATH=/app
+#    volumes:
+#      - ./data:/app/data
+#      - ./model:/app/model
+#      - ./scripts:/app/scripts
+#      - ./reports:/app/reports
+#      - ./dvc.yaml:/app/dvc.yaml:ro
+#      - ./params.yaml:/app/params.yaml:ro
+#      - ./.dvc:/app/.dvc
+#    depends_on:
+#      - mlflow
+#    networks:
+#      - churn_network
+#    command: dvc repro
 
   # ==============================================
   # MONITORING SERVICE
