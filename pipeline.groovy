@@ -6,7 +6,7 @@ pipeline {
         APP_NAME = "projet-synthese-ia"
     }
     parameters {
-        choice(name: 'Components', choices: ['API', 'Monitoring', 'DVC', 'Model', 'EvidentlyAI', 'MlFlow', 'All'], description: 'Pick component to deploy')
+        choice(name: 'Components', choices: ['API', 'Monitoring',  'Model Training', '', 'MlFlow', 'DVC', 'All'], description: 'Pick component to deploy')
     }
 
     stages {

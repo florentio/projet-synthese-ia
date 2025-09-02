@@ -3,7 +3,6 @@ pipeline {
     agent any
 
     environment {
-        DVC_REMOTE_URL = '/var/local/dvc/' //'s3://your-s3-bucket/dvc-remote' // Or a local path for testing
         MLFLOW_MODEL_NAME = 'ProjetAIModel'
         APP_NAME = "projet-synthese-ia"
     }
