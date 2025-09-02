@@ -6,7 +6,7 @@ pipeline {
         APP_NAME = "projet-synthese-ia"
     }
     parameters {
-        choice(name: 'Components', choices: ['API', 'Monitoring',  'Model Training', '', 'MlFlow', 'DVC', 'All'], description: 'Pick component to deploy')
+        choice(name: 'Components', choices: ['API', 'Monitoring',  'Model Training', 'Prediction', 'MlFlow', 'Prediction', 'DVC', 'All'], description: 'Pick component to deploy')
     }
 
     stages {
@@ -14,18 +14,6 @@ pipeline {
             steps {
                 script {
                     git branch: 'main', url: 'https://github.com/florentio/projet-synthese-ia.git'
-                }
-            }
-        }
-        stage('DVC Pull') {
-             when {
-                expression {  params.Components == 'DVC' ||
-                             params.Components == 'All'
-                             }
-            }
-            steps {
-                script {
-                    sh 'dvc pull' // Pull latest data and models
                 }
             }
         }
@@ -38,7 +26,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    echo 'Model Training'
+                    docker-compose up --build -d training
                     '''
                 }
             }
