@@ -17,7 +17,10 @@ RUN mkdir -p /app/templates /app/static /app/uploads /app/model
 
 # Copy Flask application
 COPY app.py .
-COPY templates .
+COPY base.html templates
+COPY index.html templates
+COPY predict.html templates
+COPY model_info.html templates
 
 # Expose Flask port
 EXPOSE 5000
