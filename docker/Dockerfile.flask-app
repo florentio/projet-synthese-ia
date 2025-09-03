@@ -30,4 +30,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:5000/health || exit 1
 
 # Default command
-CMD ["flask", "run", "--host=0.0.0.0"]
+CMD ["python3", "app.py"]

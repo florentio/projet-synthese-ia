@@ -49,7 +49,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker compose up --build --force-recreate -d fastapi"
+                    sh "docker compose up --build --force-recreate -d nginx fastapi"
                 }
             }
         }
@@ -62,7 +62,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker compose up --build --force-recreate -d flask streamlit"
+                    sh "docker compose up --build --force-recreate -d nginx flask streamlit"
                 }
             }
         }
