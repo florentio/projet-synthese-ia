@@ -70,7 +70,7 @@ def load_model():
     """Load the trained model and metadata"""
     global model_info
     try:
-        print
+        print(MODEL_PATH)
         if os.path.exists(MODEL_PATH):
             model_info = joblib.load(MODEL_PATH)
             print("✅ Model loaded successfully")
