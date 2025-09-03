@@ -25,9 +25,9 @@ import time
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 # Configuration - MLflow is running on port 5000 based on your message
-MLFLOW_TRACKING_URI = os.getenv('MLFLOW_TRACKING_URI', 'http://127.0.0.1:5000')
-EXPERIMENT_NAME = os.getenv('MLFLOW_EXPERIMENT_NAME', 'telco-churn-prediction')
-MODEL_NAME = os.getenv('MODEL_NAME', 'telco-churn-classifier')
+MLFLOW_TRACKING_URI = "http://127.0.0.1:8082"
+EXPERIMENT_NAME = os.getenv('MLFLOW_EXPERIMENT_NAME', 'churn')
+MODEL_NAME = os.getenv('MODEL_NAME', 'churn')
 
 # Paths - use absolute paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -54,51 +54,6 @@ logger = logging.getLogger(__name__)
 # UTILITY FUNCTIONS
 # ==============================================
 
-def test_mlflow_connection(uri: str, max_retries: int = 3, retry_delay: int = 5) -> bool:
-    """Test if MLflow server is accessible with retries"""
-    for attempt in range(max_retries):
-        try:
-            if uri.startswith('http'):
-                # Try both the API endpoint and simple GET to root
-                api_url = f"{uri}/api/2.0/mlflow/experiments/list"
-                root_url = f"{uri}"
-                
-                # Try API first
-                response = requests.get(api_url, timeout=10)
-                if response.status_code == 200:
-                    logger.info(f"✅ Successfully connected to MLflow API at {uri}")
-                    return True
-                
-                # If API fails, try root endpoint
-                response = requests.get(root_url, timeout=10)
-                if response.status_code == 200:
-                    logger.info(f"✅ Connected to MLflow UI at {uri} (API may be different)")
-                    return True
-                    
-            return True  # For file-based URIs
-            
-        except requests.exceptions.ConnectionError:
-            logger.warning(f"Attempt {attempt + 1}/{max_retries}: Connection failed to {uri}")
-            if attempt < max_retries - 1:
-                time.sleep(retry_delay)
-        except Exception as e:
-            logger.warning(f"Attempt {attempt + 1}/{max_retries}: Connection test failed: {e}")
-            if attempt < max_retries - 1:
-                time.sleep(retry_delay)
-    
-    return False
-
-def get_available_mlflow_ports():
-    """Try common MLflow ports"""
-    ports = [5000, 8080, 5001, 8081]
-    base_urls = ["http://127.0.0.1", "http://localhost", "http://mlflow-service"]
-    
-    for base_url in base_urls:
-        for port in ports:
-            url = f"{base_url}:{port}"
-            if test_mlflow_connection(url, max_retries=1, retry_delay=1):
-                return url
-    return None
 
 def load_model_metadata() -> Optional[Dict[str, Any]]:
     """Load model metadata from JSON file"""
@@ -236,25 +191,7 @@ def main():
     logger.info("=" * 60)
     logger.info("Starting model registration process")
     logger.info("=" * 60)
-    
-    global MLFLOW_TRACKING_URI
-    
-    # Test MLflow connection
-    logger.info("Testing MLflow connection...")
-    
-    if not test_mlflow_connection(MLFLOW_TRACKING_URI):
-        logger.warning(f"❌ Cannot connect to MLflow server at {MLFLOW_TRACKING_URI}")
-        logger.info("🔍 Searching for available MLflow instances...")
-        
-        found_uri = get_available_mlflow_ports()
-        if found_uri:
-            MLFLOW_TRACKING_URI = found_uri
-            logger.info(f"✅ Found MLflow at: {MLFLOW_TRACKING_URI}")
-        else:
-            logger.error("❌ Could not find any running MLflow instance")
-            logger.info("💡 Make sure MLflow is running with: docker-compose up mlflow")
-            return False
-    
+
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     logger.info(f"📡 Using MLflow Tracking URI: {MLFLOW_TRACKING_URI}")
     logger.info(f"🧪 Experiment Name: {EXPERIMENT_NAME}")
