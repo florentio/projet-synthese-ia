@@ -688,7 +688,6 @@ def show_sidebar_status():
 if __name__ == "__main__":
     # Show sidebar status
     show_sidebar_status()
-    show_sidebar_status()
 
     # Run main dashboard
     main()
