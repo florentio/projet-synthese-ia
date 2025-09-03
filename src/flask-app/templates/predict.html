@@ -183,7 +183,7 @@ function loadCustomer() {
     showLoading(true);
     
     // Fetch customer data from API
-    fetch(`/api/customer/${customerIndex}`)
+    fetch(`/api2/customer/${customerIndex}`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -247,7 +247,7 @@ function predictChurn() {
     document.getElementById('predictBtn').disabled = true;
     
     // Fetch prediction from API
-    fetch(`/api/predict/${currentCustomerIndex}`)
+    fetch(`/api2/predict/${currentCustomerIndex}`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {

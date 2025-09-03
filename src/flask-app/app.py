@@ -180,7 +180,7 @@ def predict():
                          customers=customer_list,
                          total_customers=len(customer_list))
 
-@app.route('/api/customer/<int:customer_idx>')
+@app.route('/api2/customer/<int:customer_idx>')
 def get_customer_data(customer_idx):
     """API endpoint to get customer data by index"""
     if customers_data is None or customer_idx >= len(customers_data['processed']):
@@ -225,7 +225,7 @@ def get_customer_data(customer_idx):
     except Exception as e:
         return jsonify({'error': f'Error retrieving customer data: {str(e)}'}), 500
 
-@app.route('/api/predict/<int:customer_idx>')
+@app.route('/api2/predict/<int:customer_idx>')
 def predict_churn(customer_idx):
     """API endpoint to predict churn for a specific customer"""
     if customers_data is None or model_info is None:
