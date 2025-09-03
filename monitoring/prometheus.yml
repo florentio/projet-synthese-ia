@@ -14,12 +14,6 @@ scrape_configs:
     metrics_path: '/metrics'
     scrape_interval: 30s
 
-  - job_name: 'flask'
-    static_configs:
-      - targets: ['flask:5000']
-    metrics_path: '/metrics'
-    scrape_interval: 30s
-
   - job_name: 'streamlit'
     static_configs:
       - targets: ['streamlit:8501']

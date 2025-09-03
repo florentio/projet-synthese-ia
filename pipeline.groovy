@@ -6,7 +6,7 @@ pipeline {
         APP_NAME = "projet-synthese-ia"
     }
     parameters {
-        choice(name: 'Components', choices: ['API', 'Monitoring',  'Model Training', 'Prediction', 'MlFlow', 'Prediction', 'DVC', 'All'], description: 'Pick component to deploy')
+        choice(name: 'Components', choices: ['API', 'Monitoring',  'Model', 'Prediction', 'MlFlow', 'All'], description: 'Pick component to deploy')
     }
 
     stages {
@@ -25,9 +25,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh '''
-                    docker-compose up --build -d training
-                    '''
+                    sh "docker compose up --build -d training"
                 }
             }
         }
@@ -38,7 +36,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker-compose up -d mlflow"
+                    sh "docker compose up --build -d postgres mlflow"
                 }
             }
         }
@@ -51,9 +49,20 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker build -t ${APP_NAME}-api:${BUILD_NUMBER} -f Dockerfile.api ."
-                    sh "docker build -t ${APP_NAME}-streamlit:${BUILD_NUMBER} -f Dockerfile.streamlit ."
-                    sh "docker-compose up -d --no-deps api streamlit"
+                    sh "docker compose up --build -d fastapi"
+                }
+            }
+        }
+        stage('Deploy Prediction') {
+            when {
+                expression {
+                             params.Components == 'Prediction' ||
+                             params.Components == 'All'
+                 }
+            }
+            steps {
+                script {
+                    sh "docker compose up --build -d flask streamlit"
                 }
             }
         }
@@ -65,25 +74,12 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker-compose up -d prometheus grafana"
+                    sh "docker compose up --build -d monitoring prometheus grafana"
                 }
             }
         }
 
-        stage('EvidentlyAI') {
-             when {
-                expression {  params.Components == 'EvidentlyAI' ||
-                             params.Components == 'All'
-                            }
-            }
-            steps {
-                script {
-                    sh '''
-                    echo 'EvidentlyAI'
-                    '''
-                }
-            }
-        }
+
     }
     post {
         always {
