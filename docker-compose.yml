@@ -68,22 +68,22 @@ services:
   # ==============================================
   # TRAINING SERVICE (runs train.py)
   # ==============================================
-  training:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.training
-    container_name: churn_training
-    environment:
-      - MLFLOW_TRACKING_URI=http://mlflow:5000  # Container internal access
-      - PYTHONPATH=/app
-      - DOCKER_CONTAINERIZED=1
-    volumes:
-      - /var/lib/jenkins/projet-synthese-ia/data:/app/data
-      - /var/lib/jenkins/projet-synthese-ia/model:/app/model
-      - /var/lib/jenkins/projet-synthese-ia/scripts:/app/scripts
-    depends_on:
-      - mlflow
-    command: python train.py
+#  training:
+#    build:
+#      context: .
+#      dockerfile: docker/Dockerfile.training
+#    container_name: churn_training
+#    environment:
+#      - MLFLOW_TRACKING_URI=http://mlflow:5000  # Container internal access
+#      - PYTHONPATH=/app
+#      - DOCKER_CONTAINERIZED=1
+#    volumes:
+#      - /var/lib/jenkins/projet-synthese-ia/data:/app/data
+#      - /var/lib/jenkins/projet-synthese-ia/model:/app/model
+#      - /var/lib/jenkins/projet-synthese-ia/scripts:/app/scripts
+#    depends_on:
+#      - mlflow
+#    command: python train.py
 
   # ==============================================
   # FASTAPI SERVICE (prediction API)

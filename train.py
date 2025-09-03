@@ -63,7 +63,7 @@ if os.path.exists(MLFLOW_DIR):
 if os.getenv('DOCKER_CONTAINERIZED') == '1':
     MLFLOW_TRACKING_URI = 'http://mlflow:5000'
 else:
-    MLFLOW_TRACKING_URI = 'http://127.0.0.1:8080'
+    MLFLOW_TRACKING_URI = 'http://127.0.0.1:8082'
 
 
 mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
