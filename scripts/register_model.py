@@ -97,7 +97,7 @@ def get_best_model_run(experiment_name: str, metric_name: str = "ROC AUC",
             
             if model_artifacts:
                 # Check if model has acceptable performance (optional thresholds)
-                roc_auc = run.data.metrics.get('ROC AUC', 0)
+                roc_auc = run.data.metrics.get('ROC_AUC', 0)
                 f1_score = run.data.metrics.get('F1', 0)
                 
                 # Log performance for debugging
