@@ -207,7 +207,7 @@ def main():
     try:
         # Find the best model run
         logger.info("🔍 Searching for best model run...")
-        best_run = get_best_model_run(EXPERIMENT_NAME, "ROC AUC", False)
+        best_run = get_best_model_run(EXPERIMENT_NAME, "ROC_AUC", False)
         
         # Register the model
         logger.info("📝 Registering model in MLflow Registry...")
