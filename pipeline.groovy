@@ -25,7 +25,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker compose up --build -d training"
+                    sh "docker compose up --build  --force-recreate -d training"
                 }
             }
         }
@@ -36,7 +36,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker compose up --build -d postgres mlflow"
+                    sh "docker compose up --build --force-recreate -d postgres mlflow"
                 }
             }
         }
@@ -49,7 +49,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker compose up --build -d fastapi"
+                    sh "docker compose up --build --force-recreate -d fastapi"
                 }
             }
         }
@@ -62,7 +62,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker compose up --build -d flask streamlit"
+                    sh "docker compose up --build --force-recreate -d flask streamlit"
                 }
             }
         }
@@ -74,7 +74,7 @@ pipeline {
             }
             steps {
                 script {
-                    sh "docker compose up --build -d monitoring prometheus grafana"
+                    sh "docker compose up --build --force-recreate -d monitoring prometheus grafana"
                 }
             }
         }
