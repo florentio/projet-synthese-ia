@@ -52,7 +52,7 @@ from requests.exceptions import ConnectionError
 # ==============================================
 # 1.5 SETTING UP MLFLOW - ROBUST VERSION
 # ==============================================
-
+EXPERIMENT_NAME="churn"
 # Clean up any existing MLflow directory to avoid corruption issues
 MLFLOW_DIR = "./mlruns"
 if os.path.exists(MLFLOW_DIR):
@@ -65,24 +65,8 @@ if os.getenv('DOCKER_CONTAINERIZED') == '1':
 else:
     MLFLOW_TRACKING_URI = 'http://127.0.0.1:8080'
 
-def test_mlflow_connection(uri):
-    """Test if MLflow server is accessible"""
-    try:
-        if uri.startswith('http'):
-            response = requests.get(f"{uri}/api/2.0/mlflow/experiments/list", timeout=10)
-            return response.status_code == 200
-        return True  # For file-based URIs
-    except:
-        return False
 
-# Test connection and set appropriate tracking URI
-if test_mlflow_connection(MLFLOW_TRACKING_URI):
-    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-    print(f"📬 Connected to MLflow server: {MLFLOW_TRACKING_URI}")
-else:
-    print(f"⚠️  Cannot connect to {MLFLOW_TRACKING_URI}")
-    print("📁 Falling back to local file-based tracking")
-    # Don't set tracking URI - use default local file tracking
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
 try:
     mlflow.set_experiment(EXPERIMENT_NAME)

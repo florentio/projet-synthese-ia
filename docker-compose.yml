@@ -76,6 +76,7 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000  # Container internal access
       - PYTHONPATH=/app
+      - DOCKER_CONTAINERIZED=1
     volumes:
       - /var/lib/jenkins/projet-synthese-ia/data:/app/data
       - /var/lib/jenkins/projet-synthese-ia/model:/app/model
