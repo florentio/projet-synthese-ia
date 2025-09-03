@@ -17,7 +17,6 @@ RUN mkdir -p /app/templates /app/static /app/uploads /app/model
 
 # Copy Flask application
 COPY app.py .
-COPY app.py templates/
 COPY templates/base.html templates/
 COPY templates/index.html templates/
 COPY templates/predict.html templates/

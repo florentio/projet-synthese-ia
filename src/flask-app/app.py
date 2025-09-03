@@ -32,7 +32,7 @@ from werkzeug.utils import secure_filename
 # Get the root project directory (two levels up from this file)
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-app = Flask(__name__, template_folder=os.path.join(ROOT_DIR, 'templates'))
+app = Flask(__name__, template_folder='templates')
 app.secret_key = 'your-secret-key-change-this-in-production'
 
 # Configuration
