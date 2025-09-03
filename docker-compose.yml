@@ -4,7 +4,7 @@
 # Integrated with MLflow tracking server and training workflow
 
 #version: '3.8'
-
+name: projet-synthese-ia
 services:
   # ==============================================
   # DATABASE SERVICE (for MLflow backend)
@@ -21,8 +21,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks:
-      - churn_network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mlflow_user -d mlflow_db"]
       interval: 30s
@@ -61,11 +59,9 @@ services:
     volumes:
       - mlflow_artifacts:/app/mlflow-artifacts
       - ./model:/app/model
-      - ./data:/app/data:ro
+      - ./data:/app/data
     depends_on:
       - postgres
-    networks:
-      - churn_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
@@ -95,12 +91,10 @@ services:
       - ./data:/app/data
       - ./model:/app/model
       - ./scripts:/app/scripts
-      - ./train.py:/app/train.py:ro
-      - ./params.yaml:/app/params.yaml:ro
+      - ./train.py:/app/train.py
+      - ./params.yaml:/app/params.yaml
     depends_on:
       - mlflow
-    networks:
-      - churn_network
     command: python train.py
 
   # ==============================================
@@ -119,14 +113,12 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./model:/app/model:ro
-      - ./data:/app/data:ro
+      - ./model:/app/model
+      - ./data:/app/data
       - ./reports:/app/reports
-      - ./src/fastapi-app:/app/src:ro  # Mount source code
+      - ./src/fastapi-app:/app/src  # Mount source code
     depends_on:
       - mlflow
-    networks:
-      - churn_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -155,12 +147,10 @@ services:
     ports:
       - "5001:5000"
     volumes:
-      - ./model:/app/model:ro
-      - ./src/flask-app:/app/src:ro  # Mount source code
+      - ./model:/app/model
+      - ./src/flask-app:/app/src  # Mount source code
     depends_on:
       - fastapi
-    networks:
-      - churn_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
@@ -188,14 +178,12 @@ services:
     ports:
       - "8501:8501"
     volumes:
-      - ./model:/app/model:ro
-      - ./data:/app/data:ro
-      - ./reports:/app/reports:ro
-      - ./src/streamlit-app:/app/src:ro  # Mount source code
+      - ./model:/app/model
+      - ./data:/app/data
+      - ./reports:/app/reports
+      - ./src/streamlit-app:/app/src  # Mount source code
     depends_on:
       - fastapi
-    networks:
-      - churn_network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
       interval: 30s
@@ -207,31 +195,6 @@ services:
         limits:
           cpus: '0.5'
           memory: 512M
-
-  # ==============================================
-  # DVC DATA PIPELINE (runs DVC repro)
-  # ==============================================
-#  dvc-pipeline:
-#    build:
-#      context: .
-#      dockerfile: docker/Dockerfile.dvc
-#    container_name: churn_dvc_pipeline
-#    environment:
-#      - MLFLOW_TRACKING_URI=http://mlflow:5000  # Container internal access
-#      - PYTHONPATH=/app
-#    volumes:
-#      - ./data:/app/data
-#      - ./model:/app/model
-#      - ./scripts:/app/scripts
-#      - ./reports:/app/reports
-#      - ./dvc.yaml:/app/dvc.yaml:ro
-#      - ./params.yaml:/app/params.yaml:ro
-#      - ./.dvc:/app/.dvc
-#    depends_on:
-#      - mlflow
-#    networks:
-#      - churn_network
-#    command: dvc repro
 
   # ==============================================
   # MONITORING SERVICE
@@ -247,15 +210,13 @@ services:
       - MONITORING_INTERVAL=300  # 5 minutes
       - PYTHONPATH=/app
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/app/data
       - ./reports:/app/reports
-      - ./model:/app/model:ro
-      - ./src/monitoring:/app/src:ro  # Mount source code
+      - ./model:/app/model
+      - ./src/monitoring:/app/src  # Mount source code
     depends_on:
       - fastapi
       - mlflow
-    networks:
-      - churn_network
     restart: unless-stopped
     command: python monitoring_service.py
 
@@ -268,10 +229,8 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
-    networks:
-      - churn_network
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -293,10 +252,8 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
-      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
-    networks:
-      - churn_network
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus
     healthcheck:
@@ -316,14 +273,12 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - flask
       - fastapi
       - streamlit
       - mlflow
-    networks:
-      - churn_network
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -337,15 +292,9 @@ services:
           memory: 256M
 
 # ==============================================
-# NETWORKS AND VOLUMES
+#VOLUMES
 # ==============================================
 
-networks:
-  churn_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
 
 volumes:
   postgres_data:
