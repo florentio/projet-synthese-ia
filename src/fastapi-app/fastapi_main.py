@@ -78,6 +78,17 @@ class CustomerFeatures(BaseModel):
     streaming_movies: Optional[str] = "No"
     contract: str
     tech_support: Optional[str] = "No"
+    internet_type: Optional[str] = "No"
+    streaming_music: Optional[str] = "No"
+    age: int
+    avg_monthly_gb_download: float
+    avg_monthly_long_distance_charges: float
+    population: int
+    satisfaction_score: int
+    total_extra_data: float
+    total_long_distance: float
+    total_revenue: float
+    unlimited_data: Optional[str] = "No"
     
     @validator('phone_service', 'internet_service', 'contract')
     def validate_required_categorical(cls, v):
@@ -95,6 +106,24 @@ class CustomerFeatures(BaseModel):
     def validate_tenure(cls, v):
         if v < 0:
             raise ValueError("Tenure months cannot be negative")
+        return v
+    
+    @validator('age')
+    def validate_tenure(cls, v):
+        if v < 0:
+            raise ValueError("Age cannot be negative")
+        return v
+    
+    @validator('population')
+    def validate_tenure(cls, v):
+        if v < 0:
+            raise ValueError("Population cannot be negative")
+        return v
+    
+    @validator('satisfaction_score')
+    def validate_tenure(cls, v):
+        if v < 0:
+            raise ValueError("Satisfaction Score cannot be negative")
         return v
 
 class BatchPredictionRequest(BaseModel):
@@ -178,8 +207,19 @@ def preprocess_features(features: CustomerFeatures) -> pd.DataFrame:
         'Internet Service': features.internet_service,
         'Streaming TV': features.streaming_tv,
         'Streaming Movies': features.streaming_movies,
+        'Streaming Music': features.streaming_music,
         'Contract': features.contract,
         'Tech Support': features.tech_support,
+        'Age': features.age,
+        'Avg Monthly GB Download': features.avg_monthly_gb_download,
+        'Avg Monthly Long Distance Charges': features.avg_monthly_long_distance_charges,
+        'Interne Type': features.internet_type,
+        'Population': features.population,
+        'Satisfaction Score': features.satisfaction_score,
+        'Total Extra Data':features.total_extra_data,
+        'Total Long Distance': features.total_long_distance,
+        'Total Revenue':features.total_revenue,
+        'Unlimited Data':features.unlimited_data
     }
     return pd.DataFrame([data])
 

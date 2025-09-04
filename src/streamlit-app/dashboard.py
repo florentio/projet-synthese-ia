@@ -269,15 +269,27 @@ def show_single_prediction(model_info, metadata):
             total_charges = st.number_input("Total Charges ($)", min_value=0.0, value=1000.0, step=10.0)
             tenure_months = st.number_input("Tenure (Months)", min_value=0, value=12, step=1)
             phone_service = st.selectbox("Phone Service", ["Yes", "No"])
-            multiple_lines = st.selectbox("Multiple Lines", ["Yes", "No", "No phone service"])
-        
+            multiple_lines = st.selectbox("Multiple Lines", ["Yes", "No"])
+            age = st.number_input("Age", min_value=0, value=25, step=1)
+            avg_monthly_gb_download = st.number_input("Avg Monthly GB Download($)", min_value=0.0, value=30.0, step=5.0)
+            avg_monthly_long_distance_charges = st.number_input("Avg Monthly Long Distance Charges($)", min_value=0.0, value=15.0, step=2.5)
+            cltv = st.number_input("CLTV", min_value=2000.0, value=4500.0, step=7000.0)
+            internet_service = st.selectbox("Internet Service", ["Yes", "No"])
+
         with col2:
-            internet_service = st.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
-            streaming_tv = st.selectbox("Streaming TV", ["Yes", "No", "No internet service"])
-            streaming_movies = st.selectbox("Streaming Movies", ["Yes", "No", "No internet service"])
+            internet_type = st.selectbox("Internet Type", ["Cable", "DSL", "Fiber optic", "No"])
+            streaming_tv = st.selectbox("Streaming TV", ["Yes", "No"])
+            streaming_movies = st.selectbox("Streaming Movies", ["Yes", "No"])
+            streaming_music = st.selectbox("Streaming Music", ["Yes", "No"])
             contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
-            tech_support = st.selectbox("Tech Support", ["Yes", "No", "No internet service"])
-        
+            tech_support = st.selectbox("Tech Support", ["Yes", "No"])
+            population = st.number_input("Population", min_value=0.0, value=2500.0, step=100.0)
+            satisfaction_score = st.selectbox("Satisfaction Score", [1,2,3,4,5])
+            total_extra_data = st.number_input("Total Extra Data Charges ($)", min_value=0.0, value=1000.0, step=10.0)
+            total_long_distance =st.number_input("Total Long Distance Charges ($)", min_value=0.0, value=1000.0, step=10.0)
+            total_revenue = st.number_input("Total Revenue ($)", min_value=0.0, value=1000.0, step=10.0)
+            unlimited_data = st.selectbox("Unlimited Data", ["Yes", "No"])
+
         submitted = st.form_submit_button("🔮 Predict Churn Risk", type="primary")
     
     if submitted:
@@ -289,10 +301,22 @@ def show_single_prediction(model_info, metadata):
             "phone_service": phone_service,
             "multiple_lines": multiple_lines,
             "internet_service": internet_service,
+            "internet_type": internet_type,
             "streaming_tv": streaming_tv,
             "streaming_movies": streaming_movies,
+            "streaming_music": streaming_music,
             "contract": contract,
-            "tech_support": tech_support
+            "tech_support": tech_support,
+            "age": age,
+            "avg_monthly_gb_download": avg_monthly_gb_download,
+            "avg_monthly_long_distance_charges": avg_monthly_long_distance_charges,
+            "internet_type": internet_type,
+            "population": population,
+            "satisfaction_score": satisfaction_score,
+            "total_extra_data":total_extra_data,
+            "total_long_distance": total_long_distance,
+            "total_revenue":total_revenue,
+            "unlimited_data":unlimited_data
         }
         
         # Make prediction
