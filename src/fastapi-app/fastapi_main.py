@@ -77,7 +77,7 @@ class CustomerFeatures(BaseModel):
     streaming_tv: Optional[str] = "No"
     streaming_movies: Optional[str] = "No"
     contract: str
-    tech_support: Optional[str] = "No"
+    cltv: int
     internet_type: Optional[str] = "No"
     streaming_music: Optional[str] = "No"
     age: int
@@ -106,6 +106,12 @@ class CustomerFeatures(BaseModel):
     def validate_tenure(cls, v):
         if v < 0:
             raise ValueError("Tenure months cannot be negative")
+        return v
+    
+    @validator('cltv')
+    def validate_tenure(cls, v):
+        if v < 0:
+            raise ValueError("CLTV cannot be negative")
         return v
     
     @validator('age')
@@ -209,7 +215,7 @@ def preprocess_features(features: CustomerFeatures) -> pd.DataFrame:
         'Streaming Movies': features.streaming_movies,
         'Streaming Music': features.streaming_music,
         'Contract': features.contract,
-        'Tech Support': features.tech_support,
+        'CLTV': features.cltv,
         'Age': features.age,
         'Avg Monthly GB Download': features.avg_monthly_gb_download,
         'Avg Monthly Long Distance Charges': features.avg_monthly_long_distance_charges,

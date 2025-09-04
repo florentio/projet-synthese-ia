@@ -282,7 +282,6 @@ def show_single_prediction(model_info, metadata):
             streaming_movies = st.selectbox("Streaming Movies", ["Yes", "No"])
             streaming_music = st.selectbox("Streaming Music", ["Yes", "No"])
             contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
-            tech_support = st.selectbox("Tech Support", ["Yes", "No"])
             population = st.number_input("Population", min_value=0.0, value=2500.0, step=100.0)
             satisfaction_score = st.selectbox("Satisfaction Score", [1,2,3,4,5])
             total_extra_data = st.number_input("Total Extra Data Charges ($)", min_value=0.0, value=1000.0, step=10.0)
@@ -306,7 +305,6 @@ def show_single_prediction(model_info, metadata):
             "streaming_movies": streaming_movies,
             "streaming_music": streaming_music,
             "contract": contract,
-            "tech_support": tech_support,
             "age": age,
             "avg_monthly_gb_download": avg_monthly_gb_download,
             "avg_monthly_long_distance_charges": avg_monthly_long_distance_charges,
