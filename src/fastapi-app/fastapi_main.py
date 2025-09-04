@@ -246,10 +246,11 @@ async def predict_single(
         
         # Make prediction
         model_pipeline = model['model']
-
+        logger.error("tester")
         prediction = model_pipeline.predict(customer_df)[0]
+        logger.error("tester2")
         probabilities = model_pipeline.predict_proba(customer_df)[0]
-        
+        logger.error("tester4")
         churn_prob = probabilities[1]
         confidence = max(probabilities)
         risk_level = determine_risk_level(churn_prob)
@@ -293,11 +294,11 @@ async def predict_batch(
         # Process customers in batches for efficiency
         for i, customer in enumerate(request.customers):
             customer_df = preprocess_features(customer)
-            logger.error("tester")
+
             prediction = model_pipeline.predict(customer_df)[0]
-            logger.error("tester2")
+
             probabilities = model_pipeline.predict_proba(customer_df)[0]
-            logger.error("tester4")
+
             
             churn_prob = probabilities[1]
             confidence = max(probabilities)
