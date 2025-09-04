@@ -213,17 +213,17 @@ def main():
         logger.info("📝 Registering model in MLflow Registry...")
         registered_model = register_model(best_run.info.run_id, MODEL_NAME)
         
-        # Add metadata
-        logger.info("🏷️ Adding metadata to registered model...")
-        add_model_metadata(MODEL_NAME, registered_model.version, best_run.info, file_metadata)
-        
-        # Transition to Staging
-        logger.info("🔄 Transitioning model to Staging stage...")
-        transition_model_stage(MODEL_NAME, registered_model.version, "Staging")
-        
-        # Save registration info
-        logger.info("💾 Saving registration information...")
-        save_registration_info(best_run.info, MODEL_NAME, registered_model.version)
+        # # Add metadata
+        # logger.info("🏷️ Adding metadata to registered model...")
+        # add_model_metadata(MODEL_NAME, registered_model.version, best_run.info, file_metadata)
+        #
+        # # Transition to Staging
+        # logger.info("🔄 Transitioning model to Staging stage...")
+        # transition_model_stage(MODEL_NAME, registered_model.version, "Staging")
+        #
+        # # Save registration info
+        # logger.info("💾 Saving registration information...")
+        # save_registration_info(best_run.info, MODEL_NAME, registered_model.version)
         
         # Log success
         logger.info("=" * 60)
