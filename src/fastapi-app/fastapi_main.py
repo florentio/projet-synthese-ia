@@ -68,7 +68,7 @@ prediction_log = []
 
 class CustomerFeatures(BaseModel):
     """Single customer feature schema for prediction"""
-    monthly_charge: float
+    monthly_charges: float
     total_charges: Optional[float] = None
     tenure_months: int
     phone_service: str
@@ -77,16 +77,16 @@ class CustomerFeatures(BaseModel):
     streaming_tv: Optional[str] = "No"
     streaming_movies: Optional[str] = "No"
     contract: str
-    cltv: float
+    cltv: float  # Changed from int to float
     internet_type: Optional[str] = "No"
     streaming_music: Optional[str] = "No"
     age: int
     avg_monthly_gb_download: float
     avg_monthly_long_distance_charges: float
-    population: float 
+    population: float  # Changed from int to float
     satisfaction_score: int
-    total_extra_data_charges: float
-    total_long_distance_charges: float
+    total_extra_data: float
+    total_long_distance: float
     total_revenue: float
     unlimited_data: Optional[str] = "No"
     
@@ -96,7 +96,7 @@ class CustomerFeatures(BaseModel):
             raise ValueError("Required categorical field cannot be empty")
         return v
 
-    @validator('monthly_charge')
+    @validator('monthly_charges')
     def validate_monthly_charges(cls, v):
         if v <= 0:
             raise ValueError("Monthly charges must be positive")
@@ -204,28 +204,48 @@ def get_model():
 
 def preprocess_features(features: CustomerFeatures) -> pd.DataFrame:
     """Convert Pydantic model to DataFrame for prediction"""
+    
+    # Helper function to convert Yes/No to 1/0
+    def yes_no_to_binary(value):
+        return 1 if value == "Yes" else 0
+    
+    # Contract mapping
+    contract_mapping = {
+        "Month-to-month": 0,
+        "One year": 1,
+        "Two year": 2
+    }
+    
+    # Internet type mapping
+    internet_type_mapping = {
+        "No": 0,
+        "DSL": 1,
+        "Cable": 2,
+        "Fiber optic": 3
+    }
+    
     data = {
-        'Monthly Charge': features.monthly_charge,  # Fixed: was 'Monthly Charges'
+        'Monthly Charge': features.monthly_charges,
         'Total Charges': features.total_charges or features.monthly_charges * features.tenure_months,
-        'Tenure in Months': features.tenure_months,  # Fixed: was 'Tenure Months'
-        'Phone Service': features.phone_service,
-        'Multiple Lines': features.multiple_lines,
-        'Internet Service': features.internet_service,
-        'Streaming TV': features.streaming_tv,
-        'Streaming Movies': features.streaming_movies,
-        'Streaming Music': features.streaming_music,
-        'Contract': features.contract,
+        'Tenure in Months': features.tenure_months,
+        'Phone Service': yes_no_to_binary(features.phone_service),
+        'Multiple Lines': yes_no_to_binary(features.multiple_lines),
+        'Internet Service': yes_no_to_binary(features.internet_service),
+        'Streaming TV': yes_no_to_binary(features.streaming_tv),
+        'Streaming Movies': yes_no_to_binary(features.streaming_movies),
+        'Streaming Music': yes_no_to_binary(features.streaming_music),
+        'Contract': contract_mapping.get(features.contract, 0),
         'CLTV': features.cltv,
         'Age': features.age,
         'Avg Monthly GB Download': features.avg_monthly_gb_download,
         'Avg Monthly Long Distance Charges': features.avg_monthly_long_distance_charges,
-        'Internet Type': features.internet_type,
+        'Internet Type': internet_type_mapping.get(features.internet_type, 0),
         'Population': features.population,
         'Satisfaction Score': features.satisfaction_score,
-        'Total Extra Data Charges': features.total_extra_data_charges,  # Fixed: was 'Total Extra Data'
-        'Total Long Distance Charges': features.total_long_distance_charges,  # Fixed: was 'Total Long Distance'
+        'Total Extra Data Charges': features.total_extra_data,
+        'Total Long Distance Charges': features.total_long_distance,
         'Total Revenue': features.total_revenue,
-        'Unlimited Data': features.unlimited_data
+        'Unlimited Data': yes_no_to_binary(features.unlimited_data)
     }
     return pd.DataFrame([data])
 
