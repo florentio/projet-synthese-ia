@@ -87,6 +87,15 @@ def preprocess_customer_data(df):
     Preprocess customer data by removing unnecessary columns
     and preparing it for prediction
     """
+    #Handle categorical column
+    internet_type_map = {
+        'Cable': 1,
+        'DSL': 2,
+        'Fiber Optic': 3
+    }
+
+    df['Internet Type'] = df['Internet Type'].map(internet_type_map).fillna(0)
+
     # Store customer identifiers before dropping
     customer_ids = df.get('Customer ID', df.index).copy()
     
