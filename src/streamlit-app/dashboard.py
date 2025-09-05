@@ -271,9 +271,9 @@ def show_single_prediction(model_info, metadata):
             phone_service = st.selectbox("Phone Service", ["Yes", "No"])
             multiple_lines = st.selectbox("Multiple Lines", ["Yes", "No"])
             age = st.number_input("Age", min_value=0, value=25, step=1)
-            avg_monthly_gb_download = st.number_input("Avg Monthly GB Download($)", min_value=0.0, value=30.0, step=5.0)
-            avg_monthly_long_distance_charges = st.number_input("Avg Monthly Long Distance Charges($)", min_value=0.0, value=15.0, step=2.5)
-            cltv = st.number_input("CLTV", min_value=2000.0, value=4500.0, step=7000.0)
+            avg_monthly_gb_download = st.number_input("Avg Monthly GB Download", min_value=0.0, value=30.0, step=5.0)
+            avg_monthly_long_distance_charges = st.number_input("Avg Monthly Long Distance Charges ($)", min_value=0.0, value=15.0, step=2.5)
+            cltv = st.number_input("CLTV", min_value=0.0, value=4500.0, step=100.0)
             internet_service = st.selectbox("Internet Service", ["Yes", "No"])
 
         with col2:
@@ -283,20 +283,23 @@ def show_single_prediction(model_info, metadata):
             streaming_music = st.selectbox("Streaming Music", ["Yes", "No"])
             contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
             population = st.number_input("Population", min_value=0.0, value=2500.0, step=100.0)
-            satisfaction_score = st.selectbox("Satisfaction Score", [1,2,3,4,5])
-            total_extra_data = st.number_input("Total Extra Data Charges ($)", min_value=0.0, value=1000.0, step=10.0)
-            total_long_distance =st.number_input("Total Long Distance Charges ($)", min_value=0.0, value=1000.0, step=10.0)
+            satisfaction_score = st.selectbox("Satisfaction Score", [1, 2, 3, 4, 5])
+            total_extra_data = st.number_input("Total Extra Data Charges ($)", min_value=0.0, value=100.0, step=10.0)
+            total_long_distance = st.number_input("Total Long Distance Charges ($)", min_value=0.0, value=100.0, step=10.0)
             total_revenue = st.number_input("Total Revenue ($)", min_value=0.0, value=1000.0, step=10.0)
             unlimited_data = st.selectbox("Unlimited Data", ["Yes", "No"])
 
         submitted = st.form_submit_button("🔮 Predict Churn Risk", type="primary")
     
     if submitted:
-        # Prepare features for API call
+        # Debug: Show what we're sending
+        st.write("Debug: Data being sent to API:")
+        
+        # Prepare features for API call - make sure field names match exactly
         features = {
-            "monthly_charges": monthly_charges,
-            "total_charges": total_charges,
-            "tenure_months": tenure_months,
+            "monthly_charges": float(monthly_charges),
+            "total_charges": float(total_charges) if total_charges else None,
+            "tenure_months": int(tenure_months),
             "phone_service": phone_service,
             "multiple_lines": multiple_lines,
             "internet_service": internet_service,
@@ -305,72 +308,147 @@ def show_single_prediction(model_info, metadata):
             "streaming_movies": streaming_movies,
             "streaming_music": streaming_music,
             "contract": contract,
-            "age": age,
-            "avg_monthly_gb_download": avg_monthly_gb_download,
-            "avg_monthly_long_distance_charges": avg_monthly_long_distance_charges,
-            "internet_type": internet_type,
-            "population": population,
-            "satisfaction_score": satisfaction_score,
-            "total_extra_data":total_extra_data,
-            "total_long_distance": total_long_distance,
-            "total_revenue":total_revenue,
-            "unlimited_data":unlimited_data
+            "age": int(age),
+            "avg_monthly_gb_download": float(avg_monthly_gb_download),
+            "avg_monthly_long_distance_charges": float(avg_monthly_long_distance_charges),
+            "cltv": int(cltv),
+            "population": int(population),
+            "satisfaction_score": int(satisfaction_score),
+            "total_extra_data": float(total_extra_data),
+            "total_long_distance": float(total_long_distance),
+            "total_revenue": float(total_revenue),
+            "unlimited_data": unlimited_data
         }
         
-        # Make prediction
-        with st.spinner("Making prediction..."):
-            prediction = make_prediction_api(features)
+        # Show the payload for debugging
+        st.json(features)
         
-        if prediction:
-            # Display results
-            st.markdown("---")
-            st.subheader("🎯 Prediction Results")
+        # Make prediction with better error handling
+        with st.spinner("Making prediction..."):
+            try:
+                # Test API connection first
+                health_response = requests.get("http://fastapi:8000/health", timeout=5)
+                st.write(f"API Health Status: {health_response.status_code}")
+                
+                if health_response.status_code == 200:
+                    st.success("✅ API is reachable")
+                    
+                    # Make the prediction request
+                    prediction_response = requests.post(
+                        "http://fastapi:8000/predict",
+                        json=features,
+                        timeout=30,
+                        headers={"Content-Type": "application/json"}
+                    )
+                    
+                    st.write(f"Prediction API Response Status: {prediction_response.status_code}")
+                    st.write(f"Response Headers: {dict(prediction_response.headers)}")
+                    
+                    if prediction_response.status_code == 200:
+                        prediction = prediction_response.json()
+                        st.write("Raw API Response:")
+                        st.json(prediction)
+                        
+                        # Display results
+                        st.markdown("---")
+                        st.subheader("🎯 Prediction Results")
+                        
+                        col1, col2, col3 = st.columns(3)
+                        
+                        with col1:
+                            churn_prob = prediction['churn_probability']
+                            st.metric(
+                                "Churn Probability", 
+                                f"{churn_prob:.1%}",
+                                delta=f"{churn_prob - 0.5:.1%}" if churn_prob != 0.5 else None
+                            )
+                        
+                        with col2:
+                            risk_level = prediction['risk_level']
+                            risk_color = {"Low": "🟢", "Medium": "🟡", "High": "🔴"}
+                            st.metric("Risk Level", f"{risk_color.get(risk_level, '⚪')} {risk_level}")
+                        
+                        with col3:
+                            confidence = prediction['confidence']
+                            st.metric("Model Confidence", f"{confidence:.1%}")
+                            
+						# Risk-based recommendations
+						st.subheader("💡 Recommended Actions")
+						if risk_level == "High":
+							st.error("""
+							**🚨 High Risk Customer - Immediate Action Required**
+							- Contact within 24-48 hours
+							- Offer retention package or discount
+							- Assign dedicated account manager
+							- Conduct satisfaction survey
+							""")
+						elif risk_level == "Medium":
+							st.warning("""
+							**⚠️ Medium Risk Customer - Proactive Engagement**
+							- Reach out within 1-2 weeks
+							- Highlight unused services and benefits
+							- Enroll in loyalty program
+							- Monitor usage patterns closely
+							""")
+						else:
+							st.success("""
+							**✅ Low Risk Customer - Maintain Excellence**
+							- Continue excellent customer service
+							- Consider upselling opportunities
+							- Encourage referrals
+							- Quarterly satisfaction check-in
+							""")
+						
+                    elif prediction_response.status_code == 422:
+                        # Validation error
+                        error_detail = prediction_response.json()
+                        st.error("❌ Validation Error:")
+                        st.json(error_detail)
+                    else:
+                        st.error(f"❌ Prediction API Error: {prediction_response.status_code}")
+                        st.text(prediction_response.text)
+                else:
+                    st.error(f"❌ API Health Check Failed: {health_response.status_code}")
+                    
+            except requests.exceptions.ConnectionError as e:
+                st.error(f"❌ Connection Error: Cannot reach FastAPI service. Is it running? {str(e)}")
+            except requests.exceptions.Timeout as e:
+                st.error(f"❌ Timeout Error: Request took too long. {str(e)}")
+            except requests.exceptions.RequestException as e:
+                st.error(f"❌ Request Error: {str(e)}")
+            except Exception as e:
+                st.error(f"❌ Unexpected Error: {str(e)}")
+                st.exception(e)
+
+def make_prediction_api(features_dict):
+    """Make prediction via FastAPI with better error handling"""
+    try:
+        response = requests.post(
+            "http://fastapi:8000/predict",
+            json=features_dict,
+            timeout=30,
+            headers={"Content-Type": "application/json"}
+        )
+        
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 422:
+            st.error("Validation Error:")
+            st.json(response.json())
+            return None
+        else:
+            st.error(f"API Error {response.status_code}: {response.text}")
+            return None
             
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                churn_prob = prediction['churn_probability']
-                st.metric(
-                    "Churn Probability", 
-                    f"{churn_prob:.1%}",
-                    delta=f"{churn_prob - 0.5:.1%}" if churn_prob != 0.5 else None
-                )
-            
-            with col2:
-                risk_level = prediction['risk_level']
-                risk_color = {"Low": "🟢", "Medium": "🟡", "High": "🔴"}
-                st.metric("Risk Level", f"{risk_color.get(risk_level, '⚪')} {risk_level}")
-            
-            with col3:
-                confidence = prediction['confidence']
-                st.metric("Model Confidence", f"{confidence:.1%}")
-            
-            # Risk-based recommendations
-            st.subheader("💡 Recommended Actions")
-            if risk_level == "High":
-                st.error("""
-                **🚨 High Risk Customer - Immediate Action Required**
-                - Contact within 24-48 hours
-                - Offer retention package or discount
-                - Assign dedicated account manager
-                - Conduct satisfaction survey
-                """)
-            elif risk_level == "Medium":
-                st.warning("""
-                **⚠️ Medium Risk Customer - Proactive Engagement**
-                - Reach out within 1-2 weeks
-                - Highlight unused services and benefits
-                - Enroll in loyalty program
-                - Monitor usage patterns closely
-                """)
-            else:
-                st.success("""
-                **✅ Low Risk Customer - Maintain Excellence**
-                - Continue excellent customer service
-                - Consider upselling opportunities
-                - Encourage referrals
-                - Quarterly satisfaction check-in
-                """)
+    except requests.exceptions.ConnectionError:
+        st.error("Cannot connect to FastAPI service. Please check if it's running.")
+        return None
+    except requests.exceptions.Timeout:
+        st.error("Request timeout. The API might be overloaded.")
+        return None
+    except Exception as e:
+        st.error(f"API prediction error: {e}")
+        return None
 
 def show_batch_analysis():
     """Batch prediction and analysis interface"""
