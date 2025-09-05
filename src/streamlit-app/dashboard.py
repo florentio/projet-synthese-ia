@@ -372,33 +372,6 @@ def show_single_prediction(model_info, metadata):
                             confidence = prediction['confidence']
                             st.metric("Model Confidence", f"{confidence:.1%}")
                             
-						# Risk-based recommendations
-						st.subheader("💡 Recommended Actions")
-						if risk_level == "High":
-							st.error("""
-							**🚨 High Risk Customer - Immediate Action Required**
-							- Contact within 24-48 hours
-							- Offer retention package or discount
-							- Assign dedicated account manager
-							- Conduct satisfaction survey
-							""")
-						elif risk_level == "Medium":
-							st.warning("""
-							**⚠️ Medium Risk Customer - Proactive Engagement**
-							- Reach out within 1-2 weeks
-							- Highlight unused services and benefits
-							- Enroll in loyalty program
-							- Monitor usage patterns closely
-							""")
-						else:
-							st.success("""
-							**✅ Low Risk Customer - Maintain Excellence**
-							- Continue excellent customer service
-							- Consider upselling opportunities
-							- Encourage referrals
-							- Quarterly satisfaction check-in
-							""")
-						
                     elif prediction_response.status_code == 422:
                         # Validation error
                         error_detail = prediction_response.json()
