@@ -265,9 +265,9 @@ def show_single_prediction(model_info, metadata):
         col1, col2 = st.columns(2)
         
         with col1:
-            monthly_charges = st.number_input("Monthly Charges ($)", min_value=0.0, value=50.0, step=1.0)
+            monthly_charge = st.number_input("Monthly Charge ($)", min_value=0.0, value=50.0, step=1.0)
             total_charges = st.number_input("Total Charges ($)", min_value=0.0, value=1000.0, step=10.0)
-            tenure_months = st.number_input("Tenure (Months)", min_value=0, value=12, step=1)
+            tenure_months = st.number_input("Tenure in Months", min_value=0, value=12, step=1)
             phone_service = st.selectbox("Phone Service", ["Yes", "No"])
             multiple_lines = st.selectbox("Multiple Lines", ["Yes", "No"])
             age = st.number_input("Age", min_value=0, value=25, step=1)
@@ -284,8 +284,8 @@ def show_single_prediction(model_info, metadata):
             contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
             population = st.number_input("Population", min_value=0.0, value=2500.0, step=100.0)
             satisfaction_score = st.selectbox("Satisfaction Score", [1, 2, 3, 4, 5])
-            total_extra_data = st.number_input("Total Extra Data Charges ($)", min_value=0.0, value=100.0, step=10.0)
-            total_long_distance = st.number_input("Total Long Distance Charges ($)", min_value=0.0, value=100.0, step=10.0)
+            total_extra_data_charges = st.number_input("Total Extra Data Charges ($)", min_value=0.0, value=100.0, step=10.0)
+            total_long_distance_charges = st.number_input("Total Long Distance Charges ($)", min_value=0.0, value=100.0, step=10.0)
             total_revenue = st.number_input("Total Revenue ($)", min_value=0.0, value=1000.0, step=10.0)
             unlimited_data = st.selectbox("Unlimited Data", ["Yes", "No"])
 
@@ -297,7 +297,7 @@ def show_single_prediction(model_info, metadata):
         
         # Prepare features for API call - make sure field names match exactly
         features = {
-            "monthly_charges": float(monthly_charges),
+            "monthly_charge": float(monthly_charge),
             "total_charges": float(total_charges) if total_charges else None,
             "tenure_months": int(tenure_months),
             "phone_service": phone_service,
@@ -314,8 +314,8 @@ def show_single_prediction(model_info, metadata):
             "cltv": int(cltv),
             "population": int(population),
             "satisfaction_score": int(satisfaction_score),
-            "total_extra_data": float(total_extra_data),
-            "total_long_distance": float(total_long_distance),
+            "total_extra_data_charges": float(total_extra_data_charges),
+            "total_long_distance_charges": float(total_long_distance_charges),
             "total_revenue": float(total_revenue),
             "unlimited_data": unlimited_data
         }

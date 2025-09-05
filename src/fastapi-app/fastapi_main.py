@@ -68,7 +68,7 @@ prediction_log = []
 
 class CustomerFeatures(BaseModel):
     """Single customer feature schema for prediction"""
-    monthly_charges: float
+    monthly_charge: float
     total_charges: Optional[float] = None
     tenure_months: int
     phone_service: str
@@ -85,8 +85,8 @@ class CustomerFeatures(BaseModel):
     avg_monthly_long_distance_charges: float
     population: float 
     satisfaction_score: int
-    total_extra_data: float
-    total_long_distance: float
+    total_extra_data_charges: float
+    total_long_distance_charges: float
     total_revenue: float
     unlimited_data: Optional[str] = "No"
     
@@ -96,7 +96,7 @@ class CustomerFeatures(BaseModel):
             raise ValueError("Required categorical field cannot be empty")
         return v
 
-    @validator('monthly_charges')
+    @validator('monthly_charge')
     def validate_monthly_charges(cls, v):
         if v <= 0:
             raise ValueError("Monthly charges must be positive")
@@ -205,9 +205,9 @@ def get_model():
 def preprocess_features(features: CustomerFeatures) -> pd.DataFrame:
     """Convert Pydantic model to DataFrame for prediction"""
     data = {
-        'Monthly Charges': features.monthly_charges,
+        'Monthly Charge': features.monthly_charge,  # Fixed: was 'Monthly Charges'
         'Total Charges': features.total_charges or features.monthly_charges * features.tenure_months,
-        'Tenure Months': features.tenure_months,
+        'Tenure in Months': features.tenure_months,  # Fixed: was 'Tenure Months'
         'Phone Service': features.phone_service,
         'Multiple Lines': features.multiple_lines,
         'Internet Service': features.internet_service,
@@ -219,11 +219,11 @@ def preprocess_features(features: CustomerFeatures) -> pd.DataFrame:
         'Age': features.age,
         'Avg Monthly GB Download': features.avg_monthly_gb_download,
         'Avg Monthly Long Distance Charges': features.avg_monthly_long_distance_charges,
-        'Internet Type': features.internet_type,  
+        'Internet Type': features.internet_type,
         'Population': features.population,
         'Satisfaction Score': features.satisfaction_score,
-        'Total Extra Data': features.total_extra_data,
-        'Total Long Distance': features.total_long_distance,
+        'Total Extra Data Charges': features.total_extra_data_charges,  # Fixed: was 'Total Extra Data'
+        'Total Long Distance Charges': features.total_long_distance_charges,  # Fixed: was 'Total Long Distance'
         'Total Revenue': features.total_revenue,
         'Unlimited Data': features.unlimited_data
     }
