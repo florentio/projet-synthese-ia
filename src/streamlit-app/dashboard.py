@@ -453,39 +453,39 @@ def make_prediction_api(features_dict):
 def show_batch_analysis():
     """Batch prediction and analysis interface"""
     st.header("📊 Batch Customer Analysis")
-    
+   
     # File upload
     uploaded_file = st.file_uploader(
         "Upload Customer CSV for Batch Analysis",
         type=['csv'],
         help="Upload a CSV file with customer data for batch prediction"
     )
-    
+   
     if uploaded_file is not None:
         try:
             # Load and display data
             df = pd.read_csv(uploaded_file)
             st.success(f"✅ Loaded {len(df)} customers")
-            
+           
             # Data preview
             st.subheader("📋 Data Preview")
             st.dataframe(df.head(10), use_container_width=True)
-            
+           
             # Batch prediction button
             if st.button("🚀 Run Batch Predictions", type="primary"):
-                
+               
                 # Prepare data for API (simplified example)
                 # In practice, you'd need proper feature mapping
                 progress_bar = st.progress(0)
                 status_text = st.empty()
-                
+               
                 predictions = []
                 for i, row in df.iterrows():
                     # Update progress
                     progress = (i + 1) / len(df)
                     progress_bar.progress(progress)
                     status_text.text(f"Processing customer {i+1}/{len(df)}")
-                    
+                   
                     # Make prediction (mock for demo)
                     # In practice, you'd extract features properly and call API
                     mock_prediction = {
@@ -494,15 +494,15 @@ def show_batch_analysis():
                         'risk_level': np.random.choice(['Low', 'Medium', 'High'])
                     }
                     predictions.append(mock_prediction)
-                
+               
                 # Create results DataFrame
                 results_df = pd.DataFrame(predictions)
-                
+               
                 st.success("✅ Batch predictions completed!")
-                
+               
                 # Results visualization
                 col1, col2 = st.columns(2)
-                
+               
                 with col1:
                     # Risk distribution
                     risk_counts = results_df['risk_level'].value_counts()
@@ -513,24 +513,24 @@ def show_batch_analysis():
                         color_discrete_map={'Low': 'green', 'Medium': 'orange', 'High': 'red'}
                     )
                     st.plotly_chart(fig, use_container_width=True)
-                
+               
                 with col2:
-                    # Probability distribution
+                    # Probability distribution - FIXED: Remove bins parameter
                     fig = px.histogram(
                         results_df,
                         x='churn_probability',
-                        bins=20,
-                        title="Churn Probability Distribution"
+                        title="Churn Probability Distribution",
+                        nbins=20  # Use nbins instead of bins
                     )
                     st.plotly_chart(fig, use_container_width=True)
-                
+               
                 # Detailed results table
                 st.subheader("📝 Detailed Results")
                 st.dataframe(
                     results_df.style.format({'churn_probability': '{:.1%}'}),
                     use_container_width=True
                 )
-                
+               
                 # Download results
                 csv = results_df.to_csv(index=False)
                 st.download_button(
@@ -539,10 +539,10 @@ def show_batch_analysis():
                     file_name=f"churn_predictions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
                     mime="text/csv"
                 )
-                
+               
         except Exception as e:
             st.error(f"Error processing file: {e}")
-
+            
 def show_model_monitoring():
     """Real-time model monitoring dashboard"""
     st.header("📈 Model Monitoring Dashboard")
