@@ -265,7 +265,7 @@ def show_single_prediction(model_info, metadata):
         col1, col2 = st.columns(2)
         
         with col1:
-            monthly_charge = st.number_input("Monthly Charge ($)", min_value=0.0, value=50.0, step=1.0)
+            monthly_charges = st.number_input("Monthly Charges ($)", min_value=0.0, value=50.0, step=1.0)  # Changed variable name back
             total_charges = st.number_input("Total Charges ($)", min_value=0.0, value=1000.0, step=10.0)
             tenure_months = st.number_input("Tenure in Months", min_value=0, value=12, step=1)
             phone_service = st.selectbox("Phone Service", ["Yes", "No"])
@@ -284,8 +284,8 @@ def show_single_prediction(model_info, metadata):
             contract = st.selectbox("Contract", ["Month-to-month", "One year", "Two year"])
             population = st.number_input("Population", min_value=0.0, value=2500.0, step=100.0)
             satisfaction_score = st.selectbox("Satisfaction Score", [1, 2, 3, 4, 5])
-            total_extra_data_charges = st.number_input("Total Extra Data Charges ($)", min_value=0.0, value=100.0, step=10.0)
-            total_long_distance_charges = st.number_input("Total Long Distance Charges ($)", min_value=0.0, value=100.0, step=10.0)
+            total_extra_data = st.number_input("Total Extra Data Charges ($)", min_value=0.0, value=100.0, step=10.0)  # Changed variable name
+            total_long_distance = st.number_input("Total Long Distance Charges ($)", min_value=0.0, value=100.0, step=10.0)  # Changed variable name
             total_revenue = st.number_input("Total Revenue ($)", min_value=0.0, value=1000.0, step=10.0)
             unlimited_data = st.selectbox("Unlimited Data", ["Yes", "No"])
 
@@ -295,9 +295,9 @@ def show_single_prediction(model_info, metadata):
         # Debug: Show what we're sending
         st.write("Debug: Data being sent to API:")
         
-        # Prepare features for API call - make sure field names match exactly
+        # Prepare features for API call - match FastAPI Pydantic model field names exactly
         features = {
-            "monthly_charge": float(monthly_charge),
+            "monthly_charges": float(monthly_charges),  # Matches FastAPI field
             "total_charges": float(total_charges) if total_charges else None,
             "tenure_months": int(tenure_months),
             "phone_service": phone_service,
@@ -311,11 +311,11 @@ def show_single_prediction(model_info, metadata):
             "age": int(age),
             "avg_monthly_gb_download": float(avg_monthly_gb_download),
             "avg_monthly_long_distance_charges": float(avg_monthly_long_distance_charges),
-            "cltv": int(cltv),
-            "population": int(population),
+            "cltv": float(cltv),  # Changed to float to match Pydantic
+            "population": float(population),  # Changed to float to match Pydantic
             "satisfaction_score": int(satisfaction_score),
-            "total_extra_data_charges": float(total_extra_data_charges),
-            "total_long_distance_charges": float(total_long_distance_charges),
+            "total_extra_data": float(total_extra_data),  # Matches FastAPI field name
+            "total_long_distance": float(total_long_distance),  # Matches FastAPI field name
             "total_revenue": float(total_revenue),
             "unlimited_data": unlimited_data
         }
@@ -371,6 +371,33 @@ def show_single_prediction(model_info, metadata):
                         with col3:
                             confidence = prediction['confidence']
                             st.metric("Model Confidence", f"{confidence:.1%}")
+                        
+                        # Risk-based recommendations
+                        st.subheader("💡 Recommended Actions")
+                        if risk_level == "High":
+                            st.error("""
+                            **🚨 High Risk Customer - Immediate Action Required**
+                            - Contact within 24-48 hours
+                            - Offer retention package or discount
+                            - Assign dedicated account manager
+                            - Conduct satisfaction survey
+                            """)
+                        elif risk_level == "Medium":
+                            st.warning("""
+                            **⚠️ Medium Risk Customer - Proactive Engagement**
+                            - Reach out within 1-2 weeks
+                            - Highlight unused services and benefits
+                            - Enroll in loyalty program
+                            - Monitor usage patterns closely
+                            """)
+                        else:
+                            st.success("""
+                            **✅ Low Risk Customer - Maintain Excellence**
+                            - Continue excellent customer service
+                            - Consider upselling opportunities
+                            - Encourage referrals
+                            - Quarterly satisfaction check-in
+                            """)
                             
                     elif prediction_response.status_code == 422:
                         # Validation error
